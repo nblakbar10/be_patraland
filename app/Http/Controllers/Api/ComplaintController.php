@@ -185,14 +185,14 @@ class ComplaintController extends Controller
     {
         // $complaint = Complaint::all();
         $role = User::where('id', Auth::user()->id)->pluck('role')->first();
-        if($role == 'customer'){
-            $complaint = Complaint::where('user_handler_id', Auth::user()->id)->where('status', 'receive')->get();
-        }else{
+        if($role != 'customer'){
             return response()->json([
                 'stat_code' => 400,
                 'message' => 'Anda bukan petugas!',
             ]);
         }
+        $complaint = Complaint::where('user_handler_id', Auth::user()->id)->where('status', 'receive')->get();
+        
 
         if (!$complaint) {
             return response()->json([
