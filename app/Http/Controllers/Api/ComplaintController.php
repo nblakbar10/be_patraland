@@ -27,7 +27,7 @@ class ComplaintController extends Controller
 
         if (!$complaint) {
             return response()->json([
-                'status_code' => 400,
+                'stat_code' => 400,
                 'message' => 'Data complaint tidak ditemukan!',
             ]);
         }
@@ -37,7 +37,7 @@ class ComplaintController extends Controller
         ];
 
         return response()->json([
-            'status_code' => 200,
+            'stat_code' => 200,
             'message' => 'Berhasil mengambil data complaint',
             'data' => $data,
         ], 201);
@@ -85,7 +85,7 @@ class ComplaintController extends Controller
         ]);
         
         return response()->json([
-            'status_code' => 200,
+            'stat_code' => 200,
             'message' => 'Berhasil submit keluhan',
             'data' => $complaint,
         ]);
@@ -98,12 +98,12 @@ class ComplaintController extends Controller
         
         if (!$complaint) {
             return response()->json([
-                'status_code' => 400,
+                'stat_code' => 400,
                 'message' => 'Tidak ada data complaint!',
             ]);
         }
         return response()->json([
-            'status_code' => 200,
+            'stat_code' => 200,
             'message' => 'Berhasil get data complaint',
             'data' => $complaint,
         ]);
@@ -114,7 +114,7 @@ class ComplaintController extends Controller
         $complaint = Complaint::find($id);
         if (!$complaint) {
             return response()->json([
-                'status_code' => 404,
+                'stat_code' => 404,
                 'message' => 'ID Complaint tidak ditemukan!',
             ]);
         }
@@ -159,7 +159,7 @@ class ComplaintController extends Controller
         $complaint->update($complaint_data);
 
         return response()->json([
-            'status' => 200,
+            'stat_code' => 200,
             'message' => 'edit complaint success',
             'data' => $complaint
         ]);
@@ -169,13 +169,13 @@ class ComplaintController extends Controller
         $complaint = Complaint::find($id);
         if (!$complaint) {
             return response()->json([
-                'status_code' => 404,
+                'stat_code' => 404,
                 'message' => 'ID Complaint tidak ditemukan!',
             ]);
         }
 
         return response()->json([
-            'status_code' => 200,
+            'stat_code' => 200,
             'message' => 'ID complaint ditemukan!',
             'data' => $complaint
         ]);
@@ -189,14 +189,14 @@ class ComplaintController extends Controller
             $complaint = Complaint::where('user_handler_id', Auth::user()->id)->where('status', 'receive')->get();
         }else{
             return response()->json([
-                'status_code' => 400,
+                'stat_code' => 400,
                 'message' => 'Anda bukan petugas!',
             ]);
         }
 
         if (!$complaint) {
             return response()->json([
-                'status_code' => 400,
+                'stat_code' => 400,
                 'message' => 'Data complaint tidak ditemukan!',
             ]);
         }
@@ -206,7 +206,7 @@ class ComplaintController extends Controller
         ];
 
         return response()->json([
-            'status_code' => 200,
+            'stat_code' => 200,
             'message' => 'Berhasil mengambil data complaint',
             'data' => $data,
         ], 201);
