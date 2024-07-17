@@ -12,33 +12,6 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
 
-    // public function register(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'name' => 'required|max:100',
-    //         'email' => 'required|email|unique:users',
-    //         'nik' => 'required',
-    //         'password' => 'required|confirmed'
-    //     ]);
-
-    //     $data['password'] = Hash::make($data['password']);
-    //     $user = User::create([
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'nik' => $request->nik,
-    //         'password' => $request->password,
-    //         'role' => 'customer',
-    //     ]);
-
-    //     $success['token'] =  $user->createToken('auth_token')->plainTextToken;
-    //     // $success['type'] =  'Bearer';
-    //     $success['name'] =  $user->name;
-    //     $success['email'] =  $user->email;
-    //     $success['nik'] =  $user->nik;
-    //     $success['role'] =  $user->role;
-    //     return response()->json(['success' => $success]);
-    // }
-
     public function register(Request $request)
     {
         // Validate the request
