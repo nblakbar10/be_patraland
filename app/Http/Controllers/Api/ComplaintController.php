@@ -23,9 +23,10 @@ class ComplaintController extends Controller
 
         if($check_role->role == 'customer'){
             $complaint = Complaint::where('user_id', Auth::user()->id)->get();
+        }else{
+            $complaint = Complaint::where('user_handler_id', Auth::user()->id)->get();
         }
-        $complaint = Complaint::where('user_handler_id', Auth::user()->id)->get();
-
+        
         if ($complaint->isEmpty()) {
             return response()->json([
                 'stat_code' => 400,
