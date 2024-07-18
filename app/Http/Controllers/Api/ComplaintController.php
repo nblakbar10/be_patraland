@@ -19,27 +19,24 @@ class ComplaintController extends Controller
     public function complaint_index()
     {
         // $complaint = Complaint::all();
-        $role = User::where('id', Auth::user()->id)->pluck('role')->first();
-        if($role == 'customer'){
+        $check_role = User::where('id', Auth::user()->id)->first();
+
+        if($check_role->role == 'customer'){
             $complaint = Complaint::where('user_id', Auth::user()->id)->get();
         }
         $complaint = Complaint::where('user_handler_id', Auth::user()->id)->get();
 
-        if (!$complaint) {
+        if ($complaint->isEmpty()) {
             return response()->json([
                 'stat_code' => 400,
                 'message' => 'Data complaint tidak ditemukan!',
             ]);
         }
 
-        $data = [
-            'complaint' => $complaint,
-        ];
-
         return response()->json([
             'stat_code' => 200,
             'message' => 'Berhasil mengambil data complaint',
-            'data' => $data,
+            'data' => $complaint,
         ], 201);
     }
 
