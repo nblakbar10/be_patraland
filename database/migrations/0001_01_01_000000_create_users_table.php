@@ -18,6 +18,7 @@ return new class extends Migration
             $table->bigInteger('nik');
             $table->string('password');
             $table->enum('role', ['customer', 'petugas']);
+            $table->string('fcm_token');
             $table->rememberToken();
             $table->timestamps();
         });
