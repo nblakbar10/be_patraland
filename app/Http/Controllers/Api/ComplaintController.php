@@ -209,6 +209,35 @@ class ComplaintController extends Controller
             'data' => $data,
         ], 201);
     }
-    // complaint/officer/receive
+    
+    
+    public function complaint_accept_by_officer(Request $request, $id)
+    {
+        $complaint = Complaint::find($id);
+        if (!$complaint) {
+            return response()->json([
+                'stat_code' => 404,
+                'message' => 'ID Complaint tidak ditemukan!',
+            ]);
+        }
+
+        $complaint -> update($request->all());
+        
+
+        $complaint_data = [
+            'status' => $request->status,
+            'user_handler_id' => Auth::user()->id,
+        ];
+
+        $complaint->update($complaint_data);
+
+        return response()->json([
+            'stat_code' => 200,
+            'message' => 'accept complaint success',
+            'data' => $complaint
+        ]);
+    }
+
+    
 
 }
