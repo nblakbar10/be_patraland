@@ -45,7 +45,7 @@ class ComplaintController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'home_address' => 'required',
-            'handling_asset' => 'mimes:png,jpg,jpeg|max:2048',
+            // 'handling_asset' => 'mimes:png,jpg,jpeg|max:2048',
             'complaint_asset' => 'mimes:png,jpg,jpeg|max:2048',
             'handling_description' => 'required',
         ]);
