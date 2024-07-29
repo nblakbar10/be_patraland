@@ -21,12 +21,12 @@ class ComplaintController extends Controller
         // $complaint = Complaint::all();
         $check_role = User::where('id', Auth::user()->id)->first();
 
-        if($check_role->role == 'customer'){
+        if ($check_role->role == 'customer') {
             $complaint = Complaint::where('user_id', Auth::user()->id)->get();
-        }else{
+        } else {
             $complaint = Complaint::where('user_handler_id', Auth::user()->id)->where('status', 'done')->get();
         }
-        
+
         if ($complaint->isEmpty()) {
             return response()->json([
                 'stat_code' => 400,
@@ -61,13 +61,13 @@ class ComplaintController extends Controller
         //     unlink(public_path('storage/user_document/').$fileName_progress);
         // $file_url_handling_asset = "https://firebasestorage.googleapis.com/v0/b/patraland-4e4af.appspot.com/o/user_document%2F".$fileName_progress."?alt=media";
 
-        $complaint_asset = $request->complaint_asset; 
+        $complaint_asset = $request->complaint_asset;
         $fileName_progress = time() . '_' . $complaint_asset->getClientOriginalName();
-            $complaint_asset->move(public_path('storage/user_document/'), $fileName_progress);
-            $uploadedfile = fopen(public_path('storage/user_document/').$fileName_progress, 'r');
-            $bucket_filename_complaint = app('firebase.storage')->getBucket()->upload($uploadedfile, ['name' => 'user_document/' . $fileName_progress]);
-            unlink(public_path('storage/user_document/').$fileName_progress);
-        $file_url_complaint_asset = "https://firebasestorage.googleapis.com/v0/b/patraland-4e4af.appspot.com/o/user_document%2F".$fileName_progress."?alt=media";
+        $complaint_asset->move(public_path('storage/user_document/'), $fileName_progress);
+        $uploadedfile = fopen(public_path('storage/user_document/') . $fileName_progress, 'r');
+        $bucket_filename_complaint = app('firebase.storage')->getBucket()->upload($uploadedfile, ['name' => 'user_document/' . $fileName_progress]);
+        unlink(public_path('storage/user_document/') . $fileName_progress);
+        $file_url_complaint_asset = "https://firebasestorage.googleapis.com/v0/b/patraland-4e4af.appspot.com/o/user_document%2F" . $fileName_progress . "?alt=media";
 
         $complaint = Complaint::create([
             'user_id' => Auth::user()->id,
@@ -80,7 +80,17 @@ class ComplaintController extends Controller
             'status' => 'receive',
             'user_handler_id' => 0,
         ]);
-        
+
+
+        $petugas = User::where('role', 'petugas')->get();
+        foreach ($petugas as $key => $value) {
+            $data = [
+                'title' => 'Keluhan baru!',
+                'body' => 'Ada keluhan baru, silahkan cek'
+            ];
+            $this->sendPushNotification([$value->fcm_token], $data['title'], $data['body']);
+        }
+
         return response()->json([
             'stat_code' => 200,
             'message' => 'Berhasil submit keluhan',
@@ -92,7 +102,7 @@ class ComplaintController extends Controller
     {
         // $complaint = Complaint::where('user_id', Auth::user()->id)->first();
         $complaint = Complaint::where('user_id', Auth::user()->id)->where('status', 'ongoing')->first();
-        
+
         if (!$complaint) {
             return response()->json([
                 'stat_code' => 400,
@@ -116,28 +126,28 @@ class ComplaintController extends Controller
             ]);
         }
 
-        $complaint -> update($request->all());
-        
+        $complaint->update($request->all());
+
         if ($request->hasFile('handling_asset')) {
             $file_progress = $request->handling_asset;
-                $fileName_progress = time() . '_' . $file_progress->getClientOriginalName();
-                $file_progress->move(public_path('storage/user_document/'), $fileName_progress);
-                $uploadedfile = fopen(public_path('storage/user_document/').$fileName_progress, 'r');
-                $bucket_filename_handling = app('firebase.storage')->getBucket()->upload($uploadedfile, ['name' => 'user_document/' . $fileName_progress]);
-            unlink(public_path('storage/user_document/').$fileName_progress);
-            $file_url_handling_asset = "https://firebasestorage.googleapis.com/v0/b/patraland-4e4af.appspot.com/o/user_document%2F".$fileName_progress."?alt=media";
+            $fileName_progress = time() . '_' . $file_progress->getClientOriginalName();
+            $file_progress->move(public_path('storage/user_document/'), $fileName_progress);
+            $uploadedfile = fopen(public_path('storage/user_document/') . $fileName_progress, 'r');
+            $bucket_filename_handling = app('firebase.storage')->getBucket()->upload($uploadedfile, ['name' => 'user_document/' . $fileName_progress]);
+            unlink(public_path('storage/user_document/') . $fileName_progress);
+            $file_url_handling_asset = "https://firebasestorage.googleapis.com/v0/b/patraland-4e4af.appspot.com/o/user_document%2F" . $fileName_progress . "?alt=media";
         } else {
             $file_url_handling_asset = null;
         }
 
         if ($request->hasFile('complaint_asset')) {
             $file_progress = $request->complaint_asset;
-                $fileName_progress = time() . '_' . $file_progress->getClientOriginalName();
-                $file_progress->move(public_path('storage/user_document/'), $fileName_progress);
-                $uploadedfile = fopen(public_path('storage/user_document/').$fileName_progress, 'r');
-                $bucket_filename_complaint = app('firebase.storage')->getBucket()->upload($uploadedfile, ['name' => 'user_document/' . $fileName_progress]);
-            unlink(public_path('storage/user_document/').$fileName_progress);
-            $file_url_complaint_asset = "https://firebasestorage.googleapis.com/v0/b/patraland-4e4af.appspot.com/o/user_document%2F".$fileName_progress."?alt=media";
+            $fileName_progress = time() . '_' . $file_progress->getClientOriginalName();
+            $file_progress->move(public_path('storage/user_document/'), $fileName_progress);
+            $uploadedfile = fopen(public_path('storage/user_document/') . $fileName_progress, 'r');
+            $bucket_filename_complaint = app('firebase.storage')->getBucket()->upload($uploadedfile, ['name' => 'user_document/' . $fileName_progress]);
+            unlink(public_path('storage/user_document/') . $fileName_progress);
+            $file_url_complaint_asset = "https://firebasestorage.googleapis.com/v0/b/patraland-4e4af.appspot.com/o/user_document%2F" . $fileName_progress . "?alt=media";
         } else {
             $file_url_complaint_asset = null;
         }
@@ -155,6 +165,13 @@ class ComplaintController extends Controller
 
         $complaint->update($complaint_data);
 
+
+        $user = User::find($complaint->user_id);
+        $userToken = $user->fcm_token;
+        $title = 'Complaint Anda telah selesai dikerjakan';
+        $body = 'Petugas telah menerima complaint Anda';
+        $this->sendPushNotification($userToken, $title, $body);
+
         return response()->json([
             'stat_code' => 200,
             'message' => 'edit complaint success',
@@ -162,7 +179,8 @@ class ComplaintController extends Controller
         ]);
     }
 
-    public function get_complaint_by_id(string $id){
+    public function get_complaint_by_id(string $id)
+    {
         $complaint = Complaint::find($id);
         if (!$complaint) {
             return response()->json([
@@ -182,19 +200,19 @@ class ComplaintController extends Controller
     {
         // $complaint = Complaint::all();
         $user = User::where('id', Auth::user()->id)->first();
-        if($user->role == 'customer'){
+        if ($user->role == 'customer') {
             return response()->json([
                 'stat_code' => 400,
                 'message' => 'Anda bukan petugas!',
             ]);
         }
-        if($status == 'receive'){
+        if ($status == 'receive') {
             $complaint = Complaint::where('user_handler_id', '0')->where('status', $status)->get();
         } else {
             $complaint = Complaint::where('user_handler_id', Auth::user()->id)->where('status', $status)->get();
         }
-        
-        
+
+
 
         if (!$complaint) {
             return response()->json([
@@ -209,8 +227,8 @@ class ComplaintController extends Controller
             'data' => $complaint,
         ], 201);
     }
-    
-    
+
+
     public function complaint_officer_accept_complaint(Request $request, string $id)
     {
         // $complaint = Complaint::all();
@@ -220,8 +238,14 @@ class ComplaintController extends Controller
             'status' => $request->status,
             'user_handler_id' => Auth::user()->id,
         ];
-
         $complaint->update($complaint_data);
+
+
+        $user = User::find($complaint->user_id);
+        $userToken = $user->fcm_token;
+        $title = 'Complaint Anda sedang diproses';
+        $body = 'Petugas telah menerima complaint Anda';
+        $this->sendPushNotification($userToken, $title, $body);
 
         return response()->json([
             'stat_code' => 200,
@@ -229,45 +253,40 @@ class ComplaintController extends Controller
         ], 201);
     }
 
-}
-    // public function sendPushNotification(){
+    public function sendPushNotification($token, $title, $body)
+    {
+        $url = 'https://fcm.googleapis.com/v1/projects/patraland-4e4af/messages:send';
+        $serverKey = 'ya29.a0AXooCgtDmBIWrPUBfyWqkKwMuSCM4hLFrqqX5Wju-oQP1yRInL2nlYp-3CHV6W1jKmlMcdeiwwqlM_sJ1Uu0JKAh10EYHR-6GWgxhYr-xyhAXKpmIdf00kdxXv56eGwzqc9y_zDLDsml1Ke4luz9ceExMrGXJW2pWwF6aCgYKAcMSARASFQHGX2Mi_0tKrCoSzszW724NBfRFfg0171';
 
-    //     $credentialsFilePath = storage_path("app/firebase/patraland.json");
-    //     $client = new \Google_Client();
-    //     $client->setAuthConfig($credentialsFilePath);
-    //     $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
-    //     $apiurl = 'https://fcm.googleapis.com/v1/projects/patraland-4e4af/messages:send';
-    //     $client->refreshTokenWithAssertion();
-    //     $token = $client->getAccessToken();
-    //     $access_token = $token['access_token'];
-        
-    //     $headers = [
-    //         "Authorization: Bearer $access_token",
-    //         'Content-Type: application/json'
-    //     ];
-    //     $test_data = [
-    //         "title" => "TITLE_HERE",
-    //         "description" => "DESCRIPTION_HERE",
-    //     ]; 
-        
-    //     $data['data'] =  $test_data;
-    
-    //     $data['token'] = $user['fcm_token']; // Retrive fcm_token from users table
-    
-    //     $payload['message'] = $data;
-    //     $payload = json_encode($payload);
-    //     $ch = curl_init();
-    //     curl_setopt($ch, CURLOPT_URL, $apiurl);
-    //     curl_setopt($ch, CURLOPT_POST, true);
-    //     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    //     curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-    //     curl_exec($ch);
-    //     $res = curl_close($ch);
-    //     if($res){
-    //         return response()->json([
-    //                 'message' => 'Notification has been Sent'
-    //         ]);
-    //     }
-    // }
+        $data = [
+            'message' => [
+                'token' => $token,
+                'notification' => [
+                    'title' => $title,
+                    'body' => $body
+                ]
+            ]
+        ];
+
+        $headers = [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $serverKey
+        ];
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        $result = curl_exec($ch);
+
+        curl_close($ch);
+
+        return $result;
+    }
+}
