@@ -5,12 +5,26 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Services\FirebaseService;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\ServiceAccount;
+use Kreait\Firebase\Auth as FirebaseAuth;
+
 class UserController extends Controller
 {
+
+    protected $firebaseAuth;
+
+    public function __construct()
+    {
+        $this->firebaseAuth = (new Factory)
+            ->withServiceAccount(config('services.firebase.credentials'))
+            ->createAuth();
+    }
 
     public function register(Request $request)
     {
@@ -28,16 +42,40 @@ class UserController extends Controller
 
         // Create the user
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'nik' => $request->nik,
-            'password' => Hash::make($request->password),
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'nik' => $request->input('nik'),
+            // 'fcm_token' => $request->fcm_token,
+            'password' => Hash::make($request->input('password')),
             'role' => 'customer',
             
         ]);
 
         // Generate a token
         $token = $user->createToken('API Token')->plainTextToken;
+
+        // Generate an FCM token for the user
+        try {
+            $fireBaseUser = $this->firebaseAuth->createUser([
+                'email' => $user->email,
+                'emailVerified' => false,
+                'password' => $request->input('password'),
+                'displayName' => $user->name,
+            ]);
+            // Assuming the token is part of user creation response, otherwise, generate it separately
+            $fcmToken = $this->firebaseAuth->createCustomToken($fireBaseUser->uid)->toString();
+            $user->fcm_token = $fcmToken;
+            $user->save();
+        } catch (FirebaseException $e) {
+            return response()->json(['error' => 'FCM token generation failed', 'details' => $e->getMessage()], 500);
+        }
+
+        // // Send a push notification to the new user
+        // try {
+        //     $this->sendPushNotification($fcmToken);
+        // } catch (FirebaseException $e) {
+        //     return response()->json(['error' => 'Push notification failed', 'details' => $e->getMessage()], 500);
+        // }
 
         return response()->json([
             'stat_code' => 200,
@@ -65,6 +103,8 @@ class UserController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     }
+
+    
 
     public function logout(Request $request)
     {
@@ -128,4 +168,18 @@ class UserController extends Controller
     {
         //
     }
+
+    // public function updateFcmToken(Request $request){
+    //     try{
+    //         $request->user()->update(['fcm_token'=>$request->token]);
+    //         return response()->json([
+    //             'success'=>true
+    //         ]);
+    //     }catch(\Exception $e){
+    //         report($e);
+    //         return response()->json([
+    //             'success'=>false
+    //         ],500);
+    //     }
+    // }
 }

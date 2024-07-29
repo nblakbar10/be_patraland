@@ -23,7 +23,8 @@ class User extends Authenticatable
         'nik',
         'password',
         'role',
-        'fcm_token'
+        'fcm_token',
+        // 'firebase_uid'
     ];
 
     /**

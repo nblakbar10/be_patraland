@@ -18,7 +18,8 @@ return new class extends Migration
             $table->bigInteger('nik');
             $table->string('password');
             $table->enum('role', ['customer', 'petugas']);
-            $table->string('fcm_token');
+            $table->text('fcm_token')->nullable(); 
+            // $table->string('firebase_uid');
             $table->rememberToken();
             $table->timestamps();
         });
