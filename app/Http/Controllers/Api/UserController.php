@@ -45,7 +45,7 @@ class UserController extends Controller
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'nik' => $request->input('nik'),
-            // 'fcm_token' => $request->fcm_token,
+            'fcm_token' => $request->input('fcm_token'),
             'password' => Hash::make($request->input('password')),
             'role' => 'customer',
             
@@ -93,6 +93,11 @@ class UserController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             $token = $user->createToken('API Token')->plainTextToken;
+
+            // Set the FCM token from the request
+            $user->fcm_token = $request->input('fcm_token');
+            $user->save();
+
             return response()->json([
                 'stat_code' => 200,
                 'message' => 'Berhasil Login',
