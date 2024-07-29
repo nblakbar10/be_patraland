@@ -285,6 +285,8 @@ class ComplaintController extends Controller
 
         $result = curl_exec($ch);
 
+        dd($result);
+
         curl_close($ch);
 
         return $result;
